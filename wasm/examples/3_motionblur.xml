@@ -1,0 +1,98 @@
+<?xml version="1.0" standalone="no" ?>
+<!DOCTYPE scene SYSTEM "scene.dtd">
+
+<scene output_file="3_motionblur.png">
+    <background_color r="0.0" g="0.0" b="0.0"/>
+    <animation length="2" fps="8"/>
+    <still time="0.6"/>
+    <motionblur subframes="10"/>
+    <camera>
+        <position x="3.0" y="2.0" z="-3.0"/>
+        <lookat x="0.0" y="0.0" z="-6.5"/>
+        <up x="0.0" y="1.0" z="0.0"/>
+        <horizontal_fov angle="45"/>
+        <resolution horizontal="512" vertical="512"/>
+        <max_bounces n="8"/>
+    </camera>
+    <lights>
+        <ambient_light>
+            <color r="1.0" g="1.0" b="1.0"/>
+        </ambient_light>
+        <point_light>
+            <color r="0.3" g="0.3" b="0.3"/>
+            <position x="2.0" y="1.0" z="-2.5"/>
+        </point_light>
+        <point_light>
+            <color r="0.3" g="0.3" b="0.3"/>
+            <position x="-2.0" y="-1.0" z="-2.5"/>
+        </point_light>
+        <point_light>
+            <color r="0.7" g="0.7" b="0.7"/>
+            <position x="4.0" y="10.0" z="-1"/>
+        </point_light>
+    </lights>
+    <surfaces>
+        <mesh name="open_room.obj">
+            <material_textured>
+                <texture name="rainbow.png"/>
+                <phong ka="0.3" kd="0.9" ks="1.0" exponent="200"/>
+                <reflectance r="0.0"/>
+                <transmittance t="0.0"/>
+                <refraction iof="0.0"/>
+            </material_textured>
+            <transform>
+                <translate x="0" y="0" z="0"/>
+            </transform>
+        </mesh>
+        <mesh name="plane_small.obj">
+            <material_textured>
+                <texture name="mramor6x6.png"/>
+                <phong ka="0.3" kd="0.9" ks="1.0" exponent="200"/>
+                <reflectance r="0.0"/>
+                <transmittance t="0.0"/>
+                <refraction iof="0.0"/>
+            </material_textured>
+            <transform>
+                <translate x="-0.33" y="-2.45" z="-0.67"/>
+                <scale x="20" y="1" z="20"/>
+                <rotateX theta="-90"/>
+            </transform>
+        </mesh>
+        <mesh name="cone.obj">
+            <material_solid>
+                <color r="0.50" g="0.18" b="0.17"/>
+                <phong ka="0.3" kd="0.9" ks="1.0" exponent="200"/>
+                <reflectance r="0.0"/>
+                <transmittance t="0.0"/>
+                <refraction iof="0"/>
+            </material_solid>
+            <transform>
+                <translate x="0" y="-1.5;5(i)" z="-1"/>
+            </transform>
+        </mesh>
+        <mesh name="cone.obj">
+            <material_solid>
+                <color r="0.17" g="0.50" b="0.18"/>
+                <phong ka="0.3" kd="0.9" ks="1.0" exponent="200"/>
+                <reflectance r="0.0"/>
+                <transmittance t="0.0"/>
+                <refraction iof="0"/>
+            </material_solid>
+            <transform>
+                <translate x="-3" y="-1.5" z="0"/>
+            </transform>
+        </mesh>
+        <mesh name="cone.obj">
+            <material_solid>
+                <color r="0.17" g="0.17" b="0.50"/>
+                <phong ka="0.3" kd="0.9" ks="1.0" exponent="200"/>
+                <reflectance r="0.0"/>
+                <transmittance t="0.0"/>
+                <refraction iof="0"/>
+            </material_solid>
+            <transform>
+                <translate x="3" y="-1.5" z="-2"/>
+            </transform>
+        </mesh>
+    </surfaces>
+</scene>

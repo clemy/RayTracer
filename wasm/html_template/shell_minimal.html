@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bernhard's RayTracer WASM</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div id="visualization">
+        <img id="outimage">
+    </div>
+
+    <div class="title">
+        <a href="https://www.clemy.org/">Bernhard's RayTracer</a>
+    </div>
+    <div class="subtitle">
+        RayTracer WebAssembly TestPad
+    </div>
+
+    <div class="control-sidebar">
+        <div id="help_menu" class="control-container">
+            <a class="expand-icon expand-click" href="#" title="Click to open or close">-</a>
+            <div class="header expand-click">Load Examples <span class="subheader"></span></div>
+            <div class="inner-container">
+                <p>
+                <table>
+                    <tr>
+                        <td><button class="load" id="example1">example1</button></td>
+                        <td><button class="load" id="example2">example2</button></td>
+                        <td><button class="load" id="example3">example3</button></td>
+                        <td><button class="load" id="example4">example4</button></td>
+                        <td><button class="load" id="example5">example5</button></td>
+                    </tr>
+                    <tr>
+                        <td><button class="load" id="example6">example6</button></td>
+                        <td><button class="load" id="example7">example7</button></td>
+                        <td><button class="load" id="example8">example8</button></td>
+                        <td><button class="load" id="example9">example9</button></td>
+                        <td><button class="load" id="1_transparent">transparent</button></td>
+                    </tr>
+                    <tr>
+                        <td><button class="load" id="2_animation">animation</button></td>
+                        <td><button class="load" id="3_motionblur">motionblur</button></td>
+                        <td><button class="load" id="4_julia">julia</button></td>
+                        <td><button class="load" id="6_supersampling">supersampling</button></td>
+                        <td><button class="load" id="7_dof">dof</button></td>
+                    </tr>
+                    <tr>
+                        <td><button class="load" id="8_fresnel">fresnel</button></td>
+                        <td><button class="load" id="9_caustic">caustic</button></td>
+                        <td><button class="load" id="10_caustic_texture">caustic_texture</button></td>
+                        <td><button class="load" id="101_julia_shiny">julia_shiny</button></td>
+                        <td><button class="load" id="104_julia_animation">julia_animation</button></td>
+                    </tr>
+                </table>
+                </p>
+            </div>
+        </div>
+        <div id="help_menu" class="control-container">
+            <a class="expand-icon expand-click" href="#" title="Click to open or close">-</a>
+            <div class="header expand-click">Scene Data & Run <span class="subheader"></span></div>
+            <div class="inner-container">
+                <p>
+                    <button id="run" disabled>Run RayTracer</button>
+                </p>
+                <p>
+                    <textarea id="input" rows="20" autocomplete="off" autocorrect="off" autocapitalize="off"
+                        spellcheck="false"></textarea>
+                </p>
+            </div>
+        </div>
+
+        <div id="status_menu" class="control-container">
+            <a class="expand-icon expand-click" href="#" title="Click to open or close">-</a>
+            <div class="header expand-click">Status <span class="subheader"></span></div>
+            <div class="inner-container">
+                <progress value="0" max="100" id="progress" hidden=1></progress>
+                <p id="status">Loading application...</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="wait">
+        <img alt="Loading" src="bunny.png" />
+    </div>
+
+    <script type='text/javascript'>
+        const initialExampleName = "example3";
+        const outFileName = "out.png";
+        var progressElement = document.getElementById('progress');
+
+        function loadXML(exampleName) {
+            const inputFile = FS.readFile("examples/" + exampleName + ".xml", { encoding: 'utf8' });
+            document.getElementById("input").value = inputFile;
+        }
+
+        var Module = {
+            preInit: [],
+            preRun: [],
+            postRun: [() => {
+                console.log("postRun - Ready.");
+                showStatus("Ready.");
+                loadXML(initialExampleName);
+            }],
+            print: (function () {
+                return function (text) {
+                    if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+                    // These replacements are necessary if you render to raw HTML
+                    //text = text.replace(/&/g, "&amp;");
+                    //text = text.replace(/</g, "&lt;");
+                    //text = text.replace(/>/g, "&gt;");
+                    //text = text.replace('\n', '<br>', 'g');
+                    console.log(text);
+                    showStatus(text);
+                    if (text.startsWith("Finished")) {
+                        const imageBuffer = FS.readFile(outFileName);
+                        const imageURL = URL.createObjectURL(new Blob([imageBuffer.buffer], { type: 'image/png' }));
+                        document.getElementById("outimage").src = imageURL;
+                        document.getElementById("outimage").style.display = "unset";
+                        hideWait();
+                    }
+                };
+            })(),
+            printErr: function (text) {
+                if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+                showStatus(text, true);
+                console.error(text);
+                hideWait();
+            },
+            setStatus: function (text) {
+                if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };
+                if (text === Module.setStatus.last.text) return;
+                var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+                var now = Date.now();
+                if (m && now - Module.setStatus.last.time < 30) return; // if this is a progress update, skip it if too soon
+                Module.setStatus.last.time = now;
+                Module.setStatus.last.text = text;
+                if (m) {
+                    text = m[1];
+                    progressElement.value = parseInt(m[2]) * 100;
+                    progressElement.max = parseInt(m[4]) * 100;
+                    progressElement.hidden = false;
+                    showWait();
+                } else {
+                    progressElement.value = null;
+                    progressElement.max = null;
+                    progressElement.hidden = true;
+                    if (!text) hideWait();
+                }
+                showStatus(text);
+            },
+            totalDependencies: 0,
+            monitorRunDependencies: function (left) {
+                this.totalDependencies = Math.max(this.totalDependencies, left);
+                Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies - left) + '/' + this.totalDependencies + ')' : 'Preparing run...');
+            },
+            //arguments: ["examples/" + exampleName + ".xml"],
+            noInitialRun = true
+        };
+        Module.setStatus('Downloading code...');
+
+        window.onerror = function () {
+            showStatus('Exception thrown, see JavaScript console', showStatus.Severity.ERROR);
+        };
+
+        function showStatus(text, error = false) {
+            const MAX_STATUS_ENTRIES = 15;
+            if (text.length === 0) {
+                return;
+            }
+            const span = document.createElement("span");
+            if (error) {
+                span.classList.add("error");
+            }
+            span.innerText = `\n${text}`;
+            const status = document.getElementById("status");
+            status.appendChild(span);
+            while (status.children.length > MAX_STATUS_ENTRIES) {
+                status.removeChild(status.firstChild);
+            }
+        }
+
+        showStatus.Severity = { ERROR: true };
+
+        function showWait() {
+            document.getElementById("wait").classList.remove("hide");
+            document.getElementById("run").disabled = true;
+        }
+
+        function hideWait() {
+            document.getElementById("wait").classList.add("hide");
+            document.getElementById("run").disabled = false;
+        }
+
+        Array.from(document.getElementsByClassName("expand-click")).forEach(element =>
+            element.addEventListener("click", () => {
+                element.parentNode.querySelector(".inner-container").classList.toggle("hide");
+                element.parentNode.querySelector(".expand-icon").innerText =
+                    element.parentNode.querySelector(".expand-icon").innerText == '+' ? '-' : '+';
+            })
+        );
+
+        document.getElementById("run").addEventListener("click", () => {
+            showWait();
+            FS.writeFile("examples/input.xml", document.getElementById("input").value);
+            Module.callMain(["examples/input.xml", outFileName]);
+        });
+
+        document.querySelectorAll(".load").forEach(b =>
+            b.addEventListener("click", (ev) => loadXML(ev.target.getAttribute("id")))
+        );
+    </script>
+    {{{ SCRIPT }}}
+</body>
+
+</html>

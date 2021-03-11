@@ -1,0 +1,175 @@
+<!ELEMENT scene (background_color, animation?, still?, motionblur?, caustic?, camera, lights, surfaces)>
+<!ELEMENT background_color EMPTY>
+<!ELEMENT animation EMPTY>
+<!ELEMENT still EMPTY>
+<!ELEMENT motionblur EMPTY>
+<!ELEMENT caustic EMPTY>
+
+<!ELEMENT camera (position, lookat, up, horizontal_fov, resolution, max_bounces, supersampling?, dof?)>
+<!ELEMENT position EMPTY>
+<!ELEMENT lookat EMPTY>
+<!ELEMENT up EMPTY>
+<!ELEMENT horizontal_fov EMPTY>
+<!ELEMENT resolution EMPTY>
+<!ELEMENT max_bounces EMPTY>
+<!ELEMENT supersampling EMPTY>
+<!ELEMENT dof EMPTY>
+
+<!ELEMENT lights ((ambient_light | point_light | parallel_light | spot_light)*)>
+<!ELEMENT ambient_light (color)>
+<!ELEMENT point_light (color, position)>
+<!ELEMENT parallel_light (color, direction)>
+<!ELEMENT spot_light (color, position, direction, falloff)>
+<!ELEMENT color EMPTY>
+<!ELEMENT direction EMPTY>
+<!ELEMENT falloff EMPTY>
+
+<!ELEMENT surfaces ((sphere | mesh | julia)*)>
+<!ELEMENT sphere (position, (material_solid | material_textured), transform?)>
+<!ELEMENT mesh ((material_solid | material_textured), transform?)>
+<!ELEMENT julia (position, material_solid, transform?)>
+
+<!ELEMENT material_solid (color, phong, reflectance, transmittance, refraction)>
+<!ELEMENT material_textured (texture, phong, reflectance, transmittance, refraction)>
+<!ELEMENT phong EMPTY>
+<!ELEMENT reflectance EMPTY>
+<!ELEMENT transmittance EMPTY>
+<!ELEMENT refraction EMPTY>
+<!ELEMENT texture EMPTY>
+
+<!ELEMENT transform ((translate | scale | rotateX | rotateY | rotateZ)*)>
+<!ELEMENT translate EMPTY>
+<!ELEMENT scale EMPTY>
+<!ELEMENT rotateX EMPTY>
+<!ELEMENT rotateY EMPTY>
+<!ELEMENT rotateZ EMPTY>
+
+
+
+<!ATTLIST scene
+	output_file CDATA #REQUIRED
+  time CDATA #IMPLIED
+	threads NMTOKEN #IMPLIED>
+
+<!ATTLIST background_color
+	r CDATA #REQUIRED
+	g CDATA #REQUIRED
+	b CDATA #REQUIRED
+  a CDATA #IMPLIED>
+
+<!ATTLIST animation
+	length NMTOKEN #REQUIRED
+	fps CDATA #REQUIRED>
+
+<!ATTLIST still
+	time CDATA #REQUIRED>
+
+<!ATTLIST motionblur
+	subframes CDATA #REQUIRED>
+
+<!ATTLIST caustic
+	steps CDATA #REQUIRED
+  texture_size NMTOKEN #REQUIRED
+  factor CDATA #REQUIRED>
+
+<!ATTLIST position
+	x CDATA #REQUIRED
+	y CDATA #REQUIRED
+	z CDATA #REQUIRED>
+
+<!ATTLIST lookat
+	x CDATA #REQUIRED
+	y CDATA #REQUIRED
+	z CDATA #REQUIRED>	
+
+<!ATTLIST up
+	x CDATA #REQUIRED
+	y CDATA #REQUIRED
+	z CDATA #REQUIRED>
+
+<!ATTLIST horizontal_fov
+	angle CDATA #REQUIRED>
+
+<!ATTLIST resolution
+	horizontal NMTOKEN #REQUIRED
+	vertical NMTOKEN #REQUIRED>
+
+<!ATTLIST max_bounces
+	n CDATA #REQUIRED>
+
+<!ATTLIST supersampling
+	subpixels_peraxis CDATA #REQUIRED>
+
+<!ATTLIST dof
+	x CDATA #REQUIRED
+	y CDATA #REQUIRED
+	z CDATA #REQUIRED
+  lenssize CDATA #REQUIRED>
+
+<!ATTLIST color
+	r CDATA #REQUIRED
+	g CDATA #REQUIRED
+	b CDATA #REQUIRED
+	a CDATA #IMPLIED>
+
+<!ATTLIST direction
+	x CDATA #REQUIRED
+	y CDATA #REQUIRED
+	z CDATA #REQUIRED>
+
+<!ATTLIST falloff
+	alpha1 CDATA #REQUIRED
+	alpha2 CDATA #REQUIRED>
+
+<!ATTLIST sphere
+	radius CDATA #REQUIRED>
+
+<!ATTLIST mesh
+	name CDATA #REQUIRED>
+
+<!ATTLIST julia
+	scale CDATA #REQUIRED
+	cr CDATA #REQUIRED
+	ca CDATA #REQUIRED
+	cb CDATA #REQUIRED
+	cc CDATA #REQUIRED
+	cutplane CDATA #REQUIRED>
+
+<!ATTLIST phong
+	ka CDATA #REQUIRED
+	kd CDATA #REQUIRED
+	ks CDATA #REQUIRED
+	exponent CDATA #REQUIRED>
+
+<!ATTLIST reflectance
+	r CDATA #REQUIRED>
+
+<!ATTLIST transmittance
+	t CDATA #REQUIRED>
+
+<!ATTLIST refraction
+	iof CDATA #REQUIRED
+  ec CDATA #IMPLIED
+  disp CDATA #IMPLIED>
+
+<!ATTLIST texture
+	name CDATA #REQUIRED>
+
+<!ATTLIST translate
+	x CDATA #REQUIRED
+	y CDATA #REQUIRED
+	z CDATA #REQUIRED>
+
+<!ATTLIST scale
+	x CDATA #REQUIRED
+	y CDATA #REQUIRED
+	z CDATA #REQUIRED>
+
+<!ATTLIST rotateX
+	theta CDATA #REQUIRED>
+
+<!ATTLIST rotateY
+	theta CDATA #REQUIRED>
+
+<!ATTLIST rotateZ
+	theta CDATA #REQUIRED>
